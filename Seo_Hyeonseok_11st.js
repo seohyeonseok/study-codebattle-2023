@@ -154,36 +154,46 @@ class Seo_Hyeonseok_11st {
         );
 
         let max = data.my_coins;
+        let min = data.op_bet_coins;
 
-        if (this.absWinPercent >= 90) {
+        let myBetCoin;
+        if (this.absWinPercent >= 93) {
             printLog("All-In : " + data.my_coins);
-            return data.my_coins; // 승률 95% 이상은 올인
-        } else if (this.absWinPercent < 62 ) {
+            myBetCoin = data.my_coins > data.op_coins ? max : min;
+        } else if (this.absWinPercent < 65 ) {
             printLog("Run-Out : -1");
-            return -1; // 승률 55% 미만은 포기
+            return -1; // 승률 65% 미만은 포기
         } else {
-            return this.calcBetMoney(data.my_coins, data.op_coins, data.op_bet_coins, this.simWinPercent) // 레이즈 or 콜
+            myBetCoin = this.calcBetMoney(data.my_coins, data.op_coins, data.op_bet_coins, this.simWinPercent) // 레이즈 or 콜
         }
+
+        if (myBetCoin > max) {
+            myBetCoin = max;
+        } else if (myBetCoin < min) {
+            myBetCoin = -1;
+        }
+
+        if (myBetCoin > 0.25 * max) {
+            myBetCoin = 0.25 * max
+        }
+
+        return Math.round(myBetCoin);
 
     }
 
     calcBetMoney = (myCoins, opCoins, opBetCoin, winPercent) => {
         let myBetCoin;
-        if (winPercent < 75) {
+        if (winPercent < 90) {
             myBetCoin = opBetCoin;
-        } else if (winPercent < 80) {
-            let rand = 1.5 * Math.random();
+        } else if (winPercent < 93) {
+            let rand = 0.5 * Math.random() + 1;
             myBetCoin = Math.round(rand * opBetCoin * winPercent / 100);
-        } else if (winPercent < 85) {
-            let rand = 1.7 * Math.random();
+        } else if (winPercent < 96) {
+            let rand = 0.7 * Math.random() + 1;
             myBetCoin = Math.round(rand * opBetCoin * winPercent / 100);
         } else {
-            let rand = 2 * Math.random();
+            let rand = Math.random() + 1;
             myBetCoin = Math.round(rand * opBetCoin * winPercent / 100);
-        }
-
-        if (myBetCoin > myCoins) {
-            myBetCoin = myCoins;
         }
 
         printLog("승률: " + winPercent + " 배팅: " + (myCoins > opBetCoin ? myCoins : myBetCoin));
